@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import apiKeys from "./apiKeys";
 import ReactAnimatedWeather from "react-animated-weather";
 
 function Forcast(props) {
+  const searchRef = useRef();
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
   const [weather, setWeather] = useState({});
@@ -16,7 +17,7 @@ function Forcast(props) {
           }&units=metric&APPID=${apiKeys.key}`
         );
         if (!response.ok) {
-          throw new Error("Not Found");
+          throw new Error("Enter valid city name to search");
         }
         const data = await response.json();
         setWeather(data);
@@ -37,9 +38,18 @@ function Forcast(props) {
     animate: true,
   };
 
-  useEffect(() => {
-    search("Delhi");
-  }, [search]);
+  const handleSearch = () => {
+    setQuery(searchRef.current.value);
+    search(searchRef.current.value);
+  };
+
+  // useEffect(() => {
+  //   // if (query.length === 0) {
+  //   search();
+  //   // } else {
+  //   //  search();
+  //   //}
+  // }, [search]);
 
   return (
     <div className="forecast">
@@ -56,24 +66,21 @@ function Forcast(props) {
         <div className="search-box">
           <input
             type="text"
+            ref={searchRef}
             className="search-bar"
             placeholder="Search any city"
-            onChange={(e) => setQuery(e.target.value)}
-            value={query}
           />
           <div className="img-box">
-            {" "}
             <img
               src="https://images.avishkaar.cc/workflow/newhp/search-white.png"
-              onClick={search}
+              onClick={handleSearch}
               alt="img"
             />
           </div>
         </div>
         <ul>
-          {typeof weather.main != "undefined" ? (
+          {typeof weather.main !== "undefined" ? (
             <div>
-              {" "}
               <li className="cityHead">
                 <p>
                   {weather.name}, {weather.sys.country}
@@ -119,4 +126,5 @@ function Forcast(props) {
     </div>
   );
 }
+
 export default Forcast;
